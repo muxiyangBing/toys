@@ -30,17 +30,14 @@
             padding: 80px 30px 30px 30px; color: #eee;
             box-shadow: 10px 0 30px rgba(0,0,0,0.5);
             display: flex; flex-direction: column; gap: 20px;
-            overflow-y: auto; /* 防止屏幕太矮内容显示不全 */
+            overflow-y: auto;
         }
         #sidebar.active { left: 0; }
-        
-        /* 侧边栏滚动条美化 */
         #sidebar::-webkit-scrollbar { width: 4px; }
         #sidebar::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
 
         .panel-item h3 { font-size: 14px; color: #888; margin-bottom: 12px; border-bottom: 1px solid #333; padding-bottom: 5px; }
         
-        /* 文件上传 */
         .file-upload-wrapper {
             position: relative; width: 100%; height: 40px;
             border: 1px dashed #555; border-radius: 6px;
@@ -52,12 +49,10 @@
         .upload-text { font-size: 12px; color: #aaa; pointer-events: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; }
         #status-msg { font-size: 12px; margin-top: 5px; color: #00ff99; min-height: 1em; }
 
-        /* 控件通用 */
         .control-group { margin-bottom: 15px; }
         .label-row { display: flex; justify-content: space-between; font-size: 13px; color: #ccc; margin-bottom: 8px; align-items: center; }
         .val-display { color: #00ff99; font-weight: bold; font-size: 12px; }
         
-        /* 滑动条 */
         input[type=range] {
             -webkit-appearance: none; width: 100%; height: 4px;
             background: #333; border-radius: 2px; outline: none;
@@ -70,18 +65,10 @@
         }
         input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 
-        /* 颜色控件 */
-        select {
-            width: 100%; background: #333; color: #eee; border: none; padding: 5px; border-radius: 4px; outline: none;
-        }
-        input[type=color] {
-            -webkit-appearance: none; border: none; width: 30px; height: 30px; padding: 0; background: none; cursor: pointer;
-        }
-        input[type=color]::-webkit-color-swatch-wrapper { padding: 0; }
-        input[type=color]::-webkit-color-swatch { border: 1px solid #555; border-radius: 4px; }
-        
+        select { width: 100%; background: #333; color: #eee; border: none; padding: 5px; border-radius: 4px; outline: none; }
+        input[type=color] { -webkit-appearance: none; border: none; width: 30px; height: 30px; padding: 0; background: none; cursor: pointer; }
         .color-row { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
-        .hidden { display: none; } /* 用于隐藏/显示控件 */
+        .hidden { display: none; }
 
         #overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -106,69 +93,61 @@
             <div id="status-msg"></div>
         </div>
 
-        <!-- 2. 颜色设置 (新增) -->
+        <!-- 2. ★★★ 新增：粒子属性 ★★★ -->
         <div class="panel-item">
-            <h3>颜色风格</h3>
+            <h3>粒子属性</h3>
             
             <div class="control-group">
                 <div class="label-row">
-                    <span>着色模式</span>
+                    <span>数量密度</span>
+                    <span id="density-val" class="val-display">标准</span>
                 </div>
+                <!-- 步长 step：1=最密(全显示), 10=最疏(隔10个显1个) -->
+                <!-- UI上为了直观，我们把它反过来理解：左边疏，右边密 -->
+                <input type="range" id="densityInput" min="1" max="10" value="9" step="1" style="direction: rtl"> 
+                <!-- direction: rtl 让滑块往右是变小(step变小=密度变大) -->
+            </div>
+
+            <div class="control-group">
+                <div class="label-row">
+                    <span>颗粒大小</span>
+                    <span id="size-val" class="val-display">2.0</span>
+                </div>
+                <!-- 大小范围 0.5 到 5.0 -->
+                <input type="range" id="sizeInput" min="0.5" max="5.0" value="2.0" step="0.1">
+            </div>
+        </div>
+
+        <!-- 3. 颜色设置 -->
+        <div class="panel-item">
+            <h3>颜色风格</h3>
+            <div class="control-group">
+                <div class="label-row"><span>着色模式</span></div>
                 <select id="colorModeSelect">
                     <option value="gradient">双色渐变</option>
                     <option value="solid">单色纯色</option>
                 </select>
             </div>
-
-            <!-- 渐变色选择器 -->
             <div id="gradientControls">
-                <div class="color-row">
-                    <span style="font-size:12px; color:#aaa;">起始颜色 (左)</span>
-                    <input type="color" id="colorStart" value="#00c6ff">
-                </div>
-                <div class="color-row">
-                    <span style="font-size:12px; color:#aaa;">结束颜色 (右)</span>
-                    <input type="color" id="colorEnd" value="#0072ff">
-                </div>
+                <div class="color-row"><span style="font-size:12px; color:#aaa;">起始颜色</span><input type="color" id="colorStart" value="#00c6ff"></div>
+                <div class="color-row"><span style="font-size:12px; color:#aaa;">结束颜色</span><input type="color" id="colorEnd" value="#0072ff"></div>
             </div>
-
-            <!-- 纯色选择器 -->
             <div id="solidControls" class="hidden">
-                <div class="color-row">
-                    <span style="font-size:12px; color:#aaa;">粒子颜色</span>
-                    <input type="color" id="colorSolid" value="#ffffff">
-                </div>
+                <div class="color-row"><span style="font-size:12px; color:#aaa;">粒子颜色</span><input type="color" id="colorSolid" value="#ffffff"></div>
             </div>
         </div>
 
-        <!-- 3. 交互设置 -->
+        <!-- 4. 交互设置 -->
         <div class="panel-item">
             <h3>交互参数</h3>
-            
             <div class="control-group">
-                <div class="label-row">
-                    <span>鼠标力度</span>
-                    <span id="radius-val" class="val-display">150</span>
-                </div>
+                <div class="label-row"><span>鼠标力度</span><span id="radius-val" class="val-display">150</span></div>
                 <input type="range" id="radiusInput" min="0" max="500" value="150">
             </div>
-
             <div class="control-group">
-                <div class="label-row">
-                    <span>呼吸速度</span>
-                    <span id="speed-val" class="val-display">30</span>
-                </div>
-                <!-- ★★★ 修改：最大值改为 50 ★★★ -->
+                <div class="label-row"><span>呼吸速度</span><span id="speed-val" class="val-display">30</span></div>
                 <input type="range" id="speedInput" min="0" max="50" value="30">
             </div>
-        </div>
-
-        <div class="panel-item">
-            <h3>说明</h3>
-            <p style="font-size: 12px; color: #666; line-height: 1.6;">
-                支持 TXT 坐标导入。<br>
-                切换颜色模式可自定义视觉风格。
-            </p>
         </div>
     </div>
 
@@ -177,16 +156,28 @@
 <script>
     // ================= 全局配置变量 =================
     const settings = {
+        particleStep: 1,      // 采样步长 (1=最密, 10=最疏)
+        baseSize: 2.0,        // 粒子基础大小
         mouseRadius: 150,
         breathSpeed: 0.03,
-        colorMode: 'gradient', // 'solid' or 'gradient'
+        colorMode: 'gradient',
         solidColor: '#ffffff',
         gradientStart: '#00c6ff',
         gradientEnd: '#0072ff'
     };
 
-    // 缓存渐变对象，避免每帧重复创建，提高性能
     let cachedGradient = null; 
+    let particleArray = [];
+    let time = 0;
+    
+    // ★★★ 存储原始解析数据，方便随时重新生成粒子 ★★★
+    let rawDataInfo = {
+        points: [],
+        minX: 0, maxX: 0,
+        minY: 0, maxY: 0
+    };
+
+    const mouse = { x: null, y: null };
 
     // ================= UI 逻辑 =================
     const menuBtn = document.getElementById('menu-btn');
@@ -194,13 +185,17 @@
     const overlay = document.getElementById('overlay');
     const statusMsg = document.getElementById('status-msg');
 
-    // 控件
+    // 控件引用
+    const densityInput = document.getElementById('densityInput');
+    const densityVal = document.getElementById('density-val');
+    const sizeInput = document.getElementById('sizeInput');
+    const sizeVal = document.getElementById('size-val');
+
     const radiusInput = document.getElementById('radiusInput');
     const radiusVal = document.getElementById('radius-val');
     const speedInput = document.getElementById('speedInput');
     const speedVal = document.getElementById('speed-val');
     
-    // 颜色控件
     const colorModeSelect = document.getElementById('colorModeSelect');
     const gradientControls = document.getElementById('gradientControls');
     const solidControls = document.getElementById('solidControls');
@@ -208,26 +203,49 @@
     const colorEnd = document.getElementById('colorEnd');
     const colorSolid = document.getElementById('colorSolid');
 
-    // 侧边栏开关
     function toggleSidebar() { sidebar.classList.toggle('active'); overlay.classList.toggle('active'); }
     menuBtn.addEventListener('click', toggleSidebar);
     overlay.addEventListener('click', toggleSidebar);
 
-    // 1. 鼠标范围监听
+    // --- 1. 密度控制 ---
+    densityInput.addEventListener('input', function() {
+        // UI上是 1(Max) 到 10(Min)，我们希望右边是密(Step小)
+        // input用了 rtl 样式，所以 value=1在最右边
+        const val = parseInt(this.value);
+        settings.particleStep = val;
+        
+        let label = "标准";
+        if(val === 1) label = "极密 (High)";
+        else if(val > 5) label = "稀疏 (Low)";
+        densityVal.innerText = label;
+
+        // 密度改变需要重新计算粒子数组
+        if(rawDataInfo.points.length > 0) {
+            recreateParticlesFromBuffer();
+        }
+    });
+
+    // --- 2. 大小控制 ---
+    sizeInput.addEventListener('input', function() {
+        const val = parseFloat(this.value);
+        settings.baseSize = val;
+        sizeVal.innerText = val.toFixed(1);
+        // 大小改变不需要重新生成，直接在 draw 里读取即可
+    });
+
+    // --- 3. 其他交互控制 ---
     radiusInput.addEventListener('input', function() {
         const val = parseInt(this.value);
         settings.mouseRadius = val;
         radiusVal.innerText = val;
     });
-
-    // 2. 呼吸速度监听
     speedInput.addEventListener('input', function() {
         const val = parseInt(this.value);
         settings.breathSpeed = val / 1000;
         speedVal.innerText = val;
     });
 
-    // 3. 颜色模式切换
+    // --- 4. 颜色控制 ---
     colorModeSelect.addEventListener('change', function() {
         settings.colorMode = this.value;
         if(this.value === 'solid') {
@@ -236,66 +254,58 @@
         } else {
             solidControls.classList.add('hidden');
             gradientControls.classList.remove('hidden');
-            updateGradient(); // 切换回来时刷新一下渐变
+            updateGradient();
         }
     });
+    colorStart.addEventListener('input', function() { settings.gradientStart = this.value; updateGradient(); });
+    colorEnd.addEventListener('input', function() { settings.gradientEnd = this.value; updateGradient(); });
+    colorSolid.addEventListener('input', function() { settings.solidColor = this.value; });
 
-    // 4. 颜色值监听
-    colorStart.addEventListener('input', function() {
-        settings.gradientStart = this.value;
-        updateGradient();
-    });
-    colorEnd.addEventListener('input', function() {
-        settings.gradientEnd = this.value;
-        updateGradient();
-    });
-    colorSolid.addEventListener('input', function() {
-        settings.solidColor = this.value;
-    });
-
-    // ================= 动画核心逻辑 =================
+    // ================= 核心逻辑 =================
     const canvas = document.getElementById('canvas1');
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    let particleArray = [];
-    let time = 0;
-    let rawCoordinates = []; 
-    const mouse = { x: null, y: null };
-
-    // 初始化渐变
     function updateGradient() {
-        // 创建一个覆盖整个屏幕宽度的线性渐变
         const grad = ctx.createLinearGradient(0, 0, canvas.width, 0);
         grad.addColorStop(0, settings.gradientStart);
         grad.addColorStop(1, settings.gradientEnd);
         cachedGradient = grad;
     }
-    updateGradient(); // 启动时先创建一次
+    updateGradient();
 
     window.addEventListener('mousemove', (e) => { mouse.x = e.x; mouse.y = e.y; });
 
-    // 文件处理
+    // 文件上传处理
     document.getElementById('fileInput').addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (!file) return;
         document.querySelector('.upload-text').innerText = file.name;
-        statusMsg.innerText = "正在解析...";
+        statusMsg.innerText = "解析中...";
+        
         const reader = new FileReader();
         reader.onload = function(event) {
-            const count = parseAndCreateParticles(event.target.result);
-            statusMsg.innerText = `成功! ${count}个点`;
-            setTimeout(() => { toggleSidebar(); }, 1000);
+            // 1. 解析 TXT
+            const success = parseTextData(event.target.result);
+            if(success) {
+                // 2. 生成粒子
+                recreateParticlesFromBuffer();
+                statusMsg.innerText = `成功! 共 ${rawDataInfo.points.length} 个坐标`;
+                setTimeout(() => { toggleSidebar(); }, 1000);
+            } else {
+                statusMsg.innerText = "数据格式错误";
+            }
         };
         reader.readAsText(file);
     });
 
-    function parseAndCreateParticles(text) {
-        rawCoordinates = [];
+    // 解析 TXT 并存入 rawDataInfo
+    function parseTextData(text) {
         const lines = text.split('\n');
-        let minX = Infinity, maxX = -Infinity;
-        let minY = Infinity, maxY = -Infinity;
+        rawDataInfo.points = [];
+        rawDataInfo.minX = Infinity; rawDataInfo.maxX = -Infinity;
+        rawDataInfo.minY = Infinity; rawDataInfo.maxY = -Infinity;
 
         lines.forEach(line => {
             const match = line.trim().match(/(-?\d+(\.\d+)?)[, \t]+(-?\d+(\.\d+)?)/);
@@ -303,61 +313,70 @@
                 const x = parseFloat(match[1]);
                 const y = parseFloat(match[3]);
                 if (!isNaN(x) && !isNaN(y)) {
-                    rawCoordinates.push({x, y});
-                    if (x < minX) minX = x;
-                    if (x > maxX) maxX = x;
-                    if (y < minY) minY = y;
-                    if (y > maxY) maxY = y;
+                    rawDataInfo.points.push({x, y});
+                    if (x < rawDataInfo.minX) rawDataInfo.minX = x;
+                    if (x > rawDataInfo.maxX) rawDataInfo.maxX = x;
+                    if (y < rawDataInfo.minY) rawDataInfo.minY = y;
+                    if (y > rawDataInfo.maxY) rawDataInfo.maxY = y;
                 }
             }
         });
+        return rawDataInfo.points.length > 0;
+    }
 
-        if (rawCoordinates.length === 0) { statusMsg.innerText = "无效数据"; return 0; }
+    // 根据当前的 rawDataInfo 和 settings 生成粒子
+    function recreateParticlesFromBuffer() {
+        if (rawDataInfo.points.length === 0) return;
 
-        const shapeWidth = maxX - minX;
-        const shapeHeight = maxY - minY;
+        // 计算缩放 (Auto Fit)
+        const shapeWidth = rawDataInfo.maxX - rawDataInfo.minX;
+        const shapeHeight = rawDataInfo.maxY - rawDataInfo.minY;
         const padding = 0.75; 
         const scaleX = (canvas.width * padding) / shapeWidth;
         const scaleY = (canvas.height * padding) / shapeHeight;
         const scale = Math.min(scaleX, scaleY); 
 
-        const offsetX = (canvas.width - shapeWidth * scale) / 2 - minX * scale;
-        const offsetY = (canvas.height - shapeHeight * scale) / 2 - minY * scale;
+        const offsetX = (canvas.width - shapeWidth * scale) / 2 - rawDataInfo.minX * scale;
+        const offsetY = (canvas.height - shapeHeight * scale) / 2 - rawDataInfo.minY * scale;
 
         particleArray = [];
-        const step = 1;
+        // 使用设置里的步长
+        const step = settings.particleStep;
 
-        for (let i = 0; i < rawCoordinates.length; i += step) {
-            const coord = rawCoordinates[i];
+        for (let i = 0; i < rawDataInfo.points.length; i += step) {
+            const coord = rawDataInfo.points[i];
             const finalX = coord.x * scale + offsetX;
             const finalY = coord.y * scale + offsetY;
             particleArray.push(new Particle(finalX, finalY));
         }
-        return particleArray.length;
     }
 
     class Particle {
         constructor(x, y) {
             this.x = Math.random() * canvas.width;
             this.y = Math.random() * canvas.height;
-            this.size = Math.random() * 1.5 + 0.5;
+            // 存储一个随机比例因子 (0.5 ~ 1.5)
+            // 实际大小 = settings.baseSize * this.scaleFactor
+            this.scaleFactor = Math.random() * 1.0 + 0.5;
+            
             this.baseX = x + (Math.random() * 2 - 1);
             this.baseY = y + (Math.random() * 2 - 1);
             this.density = (Math.random() * 30) + 1;
         }
 
         draw() {
-            // ★★★ 颜色逻辑核心 ★★★
             if (settings.colorMode === 'solid') {
                 ctx.fillStyle = settings.solidColor;
             } else {
-                // 如果是渐变，直接使用缓存好的全局渐变对象
-                // Canvas 会自动根据粒子坐标匹配渐变色
                 ctx.fillStyle = cachedGradient;
             }
             
+            // ★★★ 动态计算大小 ★★★
+            // 这样拖动滑块时，粒子会实时变大变小，且保留了随机的参差感
+            let currentSize = settings.baseSize * this.scaleFactor;
+            
             ctx.beginPath();
-            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.arc(this.x, this.y, currentSize, 0, Math.PI * 2);
             ctx.closePath();
             ctx.fill();
         }
@@ -417,7 +436,9 @@
     window.addEventListener('resize', function () {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        updateGradient(); // 窗口调整大小时，重新计算渐变宽度
+        updateGradient();
+        // 窗口变化时重新适配坐标
+        if(rawDataInfo.points.length > 0) recreateParticlesFromBuffer();
     });
 
     animate();
